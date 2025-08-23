@@ -1,0 +1,13 @@
+:root {
+  /* default theme color */
+  /* can be overrided by uses `themeConfig` option */
+  --slidev-theme-primary: #172554;
+}
+
+.slidev-layout {
+  background: #172554;
+  h1, h2, h3, h4, h5, h6 {
+      color: #EBBE46;
+      margin-bottom: 1rem;
+  }
+}
