@@ -8,7 +8,13 @@
     "export": "slidev export"
   },
   "dependencies": {
+    "@iconify-json/dashicons": "^1.2.1",
+    "@iconify-json/devicon": "^1.2.42",
     "@iconify-json/logos": "^1.2.9",
+    "@iconify-json/material-symbols": "^1.2.33",
+    "@iconify-json/mdi": "^1.2.3",
+    "@iconify-json/streamline-freehand": "^1.2.1",
+    "@iconify/vue": "^5.0.0",
     "@slidev/cli": "^52.1.0",
     "@slidev/theme-default": "latest",
     "@slidev/theme-seriph": "latest",

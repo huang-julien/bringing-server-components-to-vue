@@ -99,10 +99,42 @@ vue-onigiri
 
 # Meta-frameworks
 
+<div class="flex gap-4 my-5">
+
+<logos-nuxt-icon size="2rem" />
+
+<devicon-nextjs size="2rem" />
+
+<devicon-astro size="2rem"  />
+
+<logos-analog  size="2rem" />
+
+</div>
+
+::two-cols
+
+<div>
+
 - Built on top of frontend frameworks
 - Set a bridge between frontend and backend development
 - Allows new capabilities for frontend frameworks such as SSR, SSG
 - Bring a whole new set of DX feature by abstracting a lot of concepts
+ 
+</div>
+
+<img src="/assets/meta-frameworks-meme.png" class="w-3/4" />
+
+::
+
+
+
+---
+clicks: 5
+---
+
+# How your app are rendered with SSR meta frameworks
+
+<ServerSideRendering />
 
 ---
 layout: intro
@@ -139,6 +171,7 @@ layout: intro
 ---
 
 # Something similar to server components in Nuxt  
+
 # NuxtIslands
 
 ---
@@ -560,3 +593,14 @@ layout: intro
 
 ---
 
+# The most important part
+
+## Render under an AST format instead of pure HTML
+
+---
+
+# Applying it to Nuxt
+
+
+
+---
