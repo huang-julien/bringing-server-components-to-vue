@@ -92,7 +92,53 @@ vue-onigiri
 
 # Frontend frameworks
 
-- browser only
+
+<div class="flex gap-4 my-5">
+
+<logos-vue size="2rem" />
+
+<devicon-angular size="2rem" />
+
+<devicon-react size="2rem"  />
+
+<logos-svelte-icon size="2rem" />
+
+</div>
+
+::two-cols
+
+<div>
+
+<v-clicks>
+
+- Client-side rendering
+- DOM manipulation focused
+- hash-based routing
+
+
+</v-clicks>
+
+<v-clicks>
+
+- Declarative UI
+- Composable Components
+- Virtual DOM (react, vue) - Incremental DOM (angular) - Compilation based (svelte - solid)
+
+</v-clicks>
+
+</div>
+
+
+
+<img src="/assets/frameworks-everywhere.jpg" />
+
+::
+
+<!-- 
+
+Early  SPA emerged as a response to traditional multi-page websites, aiming to provide more dynamic, desktop-like experiences on the web.
+Modern frontend frameworks have evolved significantly from early SPA frameworks, introducing more efficient rendering, better developer experiences, and improved performance patterns.
+-->
 
 
 ---
@@ -137,8 +183,6 @@ clicks: 5
 <ServerSideRendering />
 
 ---
-layout: intro
----
 
 # Server components by Meta frameworks
 
@@ -146,6 +190,8 @@ layout: intro
 - Has access to server environment
 - No javascript downloaded by browsers
 - No interactivity
+
+
 
 ---
 

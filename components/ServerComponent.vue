@@ -1,55 +1,46 @@
 <template>
-    <div class="html bg-black">
-        <div class="text-white" :class="{ 'bg-green-500': clicks > 0 }">
-            Header
-        </div>
-
-        <div class="grid-cols-2">
-            <div class="bg-black-500 text-white">
-                Sidebar
-            </div>
-
-            <div class="bg-black-500 text-white border-none !p-0">
-                <div>
-                    Main content component
-                    
-                    <div :class="{ 'bg-green-500': clicks > 0 }">
-                        Carousel
-                            <span class="flex gap-px text-xs justify-between">
-
-                        <div class="bg-black !p-0 items-center">
-                            Item 1
-                        </div>
-                        <div class="bg-black !p-0 items-center">
-                            Item 2
-                        </div>
-                        <div class="bg-black !p-0 items-center">
-                            Item 3
-                        </div>
-
-                        </span>
-                    </div>
-                </div>
-                <div :class="{ 'bg-green-500': clicks > 0 }">
-                    Carousel
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-black-500 text-white">
-            Footer
-        </div>
+  <div>
+    <div class="grid grid-cols-3 gap-2">
+        <template v-for="(step, index) in steps">
+        <div  v-if="clicks >= index" class="flex flex-col items-center text-center p-4 border rounded-lg">
+            <span class="text-4xl mb-2">
+                <Icon :icon="step.icon" />
+            </span>
+            <h3 class="font-semibold">{{ step.title }}</h3>
+        </div></template>
     </div>
+  </div>
 </template>
 
-<script setup lang="ts">
+
+<script lang="ts" setup>
+import { Icon } from "@iconify/vue";
+
 import { useSlideContext } from '@slidev/client'
+
+const steps = [
+    {
+        icon: 'material-symbols:person',
+        title: 'Incoming user request'
+    },
+    {
+        icon: 'logos:vue',
+        title: 'Renders the component server side'
+    },
+    {
+        icon: 'dashicons:html',
+        title: 'Renders to AST'
+    },
+    {
+        icon: 'streamline-freehand:programming-language-browser-html',
+        title: 'Browser receives the response'
+    },
+    {
+        icon: 'logos:vue',
+        title: 'Renders the component from AST'
+    },
+]
+
 
 const clicks = useSlideContext().$clicks
 </script>
-
-<style lang="scss" scoped>
-div {
-    @apply p-2 grid border border-white gap-5;
-}
-</style>
