@@ -143,6 +143,22 @@ Modern frontend frameworks have evolved significantly from early SPA frameworks,
 
 ---
 
+# Component in modern frameworks
+
+<!-- 
+
+self-contained, reusable piece of UI that encapsulates structure, appearance, behavior, and state. 
+
+Encapsulation: Components bundle markup, styles, and logic together into a cohesive unit
+Composability: Larger UI systems are built by nesting and combining smaller components
+Reusability: Components can be used repeatedly across an application
+Isolation: Components maintain their own state and scope, minimizing side effects
+Declarative: Components describe what should appear rather than imperative DOM manipulation
+
+-->
+
+---
+
 # Meta-frameworks
 
 <div class="flex gap-4 my-5">
@@ -642,6 +658,16 @@ layout: intro
 # The most important part
 
 ## Render under an AST format instead of pure HTML
+
+---
+layout: intro
+---
+
+# How ?
+
+---
+
+# Translating vnodes to AST
 
 ---
 
