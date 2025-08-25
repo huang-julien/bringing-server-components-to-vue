@@ -247,7 +247,7 @@ clicks: 1
 
   <AstroIsland />
 
-  <ServerComponent />
+  <ServerComponentSteps />
 
 </div>
 
