@@ -85,6 +85,8 @@ vue-onigiri
 <p v-drag="[417,306,318,24]">My hands and wrists:</p>
 
 ---
+layout: intro
+---
 
 # What is a server component ?
 
@@ -188,8 +190,6 @@ Declarative: Components describe what should appear rather than imperative DOM m
 
 ::
 
-
-
 ---
 clicks: 5
 ---
@@ -199,6 +199,8 @@ clicks: 5
 <ServerSideRendering />
 
 ---
+clicks: 4
+---
 
 # Server components by Meta frameworks
 
@@ -207,6 +209,7 @@ clicks: 5
 - No javascript downloaded by browsers
 - No interactivity
 
+<ServerComponentRendering />
 
 
 ---
@@ -222,19 +225,26 @@ clicks: 5
 
 ---
 
-# Why don't vue provide server components ?
-
+# Does Vue also provide server components ?
 
 <img class="rounded-xl mx-auto" src="/assets/vsc.png" />
 
+---
+
+# And what about Nuxt ?
 
 ---
 layout: intro
 ---
 
-# Something similar to server components in Nuxt  
+# `<NuxtIsland>`
 
-# NuxtIslands
+<img src="/assets/island_scene.svg" />
+
+---
+
+
+
 
 ---
 clicks: 1
@@ -274,6 +284,8 @@ clicks: 1
 ---
 
 # Pure HTML brings a lot of limitations
+
+<img v-drag="[300,122,349,391]" src="/assets/island_workaround.jpg" />
 
 ---
 
@@ -641,9 +653,194 @@ export default defineComponent({
 
 </div>
 
-
-
 </Window>
+
+---
+
+# How does NuxtIsland render your server component ?
+
+<div class="overflow-auto h-fit">
+
+````md magic-move {class:'h-50vh overflow-auto'}
+
+```js
+[
+  {
+    type: 'static-vnode',
+    html: `
+      <div data-island-uid="some-uid">
+        this is a server component
+        <div 
+          style="display: contents;"
+          data-island-uid="34ddcd4d-6659-4df9-8f14-bfff83699976" 
+          data-island-component="v-0-0-0"
+        >
+          <div class="sugar-counter">
+            Sugar Counter 12 x 1 = 12 <button> Inc </button>
+          </div>
+        </div>
+        <div 
+          style="display: contents;" 
+          data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"
+          data-island-slot="default"
+        >
+        </div>
+      </div>
+    `
+  }
+]
+```
+
+```js
+[
+  {
+    type: 'static-vnode',
+    html: `
+      <div data-island-uid="some-uid">
+        this is a server component
+
+        <div 
+          style="display: contents;"
+          data-island-uid="34ddcd4d-6659-4df9-8f14-bfff83699976" 
+          data-island-component="v-0-0-0"
+        >
+          <div class="sugar-counter">
+            Sugar Counter 12 x 1 = 12 <button> Inc </button>
+          </div>
+        </div>
+
+        <div 
+          style="display: contents;" 
+          data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"
+          data-island-slot="default"
+        >
+
+        </div>
+      </div>
+    `
+  },
+  {
+    type: 'Teleport',
+    target: '[data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"][data-island-slot="default"]',
+    children: [
+      {
+        // ...
+      }
+    ]
+  },
+  {
+    type: 'Teleport',
+    target: '[data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"][data-island-component="v-0-0-0"]',
+    children: [
+      {
+        // ...
+      }
+    ]
+  },
+]
+```
+
+```js
+[
+  {
+    type: 'static-vnode',
+    html: `
+      <div data-island-uid="some-uid">
+        this is a server component
+
+        <div 
+          style="display: contents;"
+          data-island-uid="34ddcd4d-6659-4df9-8f14-bfff83699976" 
+          data-island-component="v-0-0-0"
+        >
+          <div class="sugar-counter">
+            Sugar Counter 12 x 1 = 12 <button> Inc </button>
+          </div>
+        </div>
+
+        <div 
+          style="display: contents;" 
+          data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"
+          data-island-slot="default"
+        >
+
+        </div>
+      </div>
+    `
+  },
+  {
+    type: 'Teleport',
+    target: 'div[data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"][data-island-slot="default"]',
+    children: [
+      {
+        // ...
+      }
+    ]
+  },
+  {
+    type: 'Teleport',
+    target: 'div[data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"][data-island-component="v-0-0-0"]',
+    children: [
+      {
+        // ...
+      }
+    ]
+  },
+]
+```
+```ts
+[
+  {
+    type: 'static-vnode',
+    html: `
+      <div data-island-uid="some-uid">
+        this is a server component
+
+        <div 
+          style="display: contents;"
+          data-island-uid="34ddcd4d-6659-4df9-8f14-bfff83699976" 
+          data-island-component="v-0-0-0"
+        >
+          <div class="sugar-counter">
+            Sugar Counter 12 x 1 = 12 <button> Inc </button>
+          </div>
+        </div>
+
+        <div 
+          style="display: contents;" 
+          data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"
+          data-island-slot="default"
+        >
+
+        </div>
+      </div>
+    `
+  },
+  {
+    type: 'Teleport',
+    target: '[data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"][data-island-slot="default"]',
+    children: [
+      {
+        // ...
+      }
+    ]
+  },
+  {
+    type: 'Teleport',
+    target: '[data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"][data-island-component="v-0-0-0"]',
+    children: [
+      {
+        // ...
+      }
+    ]
+  },
+]
+```
+
+````
+
+</div>
+
 
 ---
 layout: intro
@@ -651,7 +848,7 @@ layout: intro
 
 # Bringing server components to Vue
 
-<img src="/assets/vue-onigiri.png" />
+<img v-drag="[-13,-54,0,0]" src="/assets/vue-onigiri.png" />
 
 ---
 
