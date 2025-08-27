@@ -233,6 +233,11 @@ clicks: 4
 
 # And what about Nuxt ?
 
+- Allows server side rendering
+- Allows pre-rendering your app
+
+<img v-drag="[618,74,275,413]" src="/assets/nuxtisland.png" />
+
 ---
 layout: intro
 ---
@@ -243,8 +248,40 @@ layout: intro
 
 ---
 
+# How to use NuxtIsland
 
+```bash
+|- components
+|  |-- islands
+|  |   |-- MyIsland.vue
+|  |-- MyServerComponent.server.ts
+```
 
+<Spacer />
+
+::window{filename="components/island/YourIsland.vue"}
+
+````md magic-move
+
+```html
+<template>
+  <div>
+    <NuxtIsland name="MyIsland" />
+  </div>
+</template>
+```
+
+```html
+<template>
+  <div>
+    <MyServerComponent />
+  </div>
+</template>
+```
+
+````
+
+::
 
 ---
 clicks: 1
@@ -263,9 +300,54 @@ clicks: 1
 
 ---
 
-# Nuxt Island response
+# An endpoint and a component
 
-````json
+- `/__nuxt_island`
+  - Creates a Vue application and renders a single component
+  - Stringifies the render and returns a JSON response
+- `NuxtIsland`
+  - Receives a `name` prop and calls the endpoint
+  - On each response, `NuxtIsland` renders the content statically
+
+<Spacer />
+<Spacer />
+<Spacer /> 
+ 
+
+```ts twoslash
+// ---cut-start---
+interface NuxtIslandSlotResponse {
+  props: Array<unknown>
+  fallback?: string
+}
+
+interface NuxtIslandClientResponse {
+  html: string
+  props: unknown
+  chunk: string
+  slots?: Record<string, string>
+}
+type Head = any
+// ---cut-end---
+
+interface NuxtIslandResponse {
+  id?: string
+  html: string
+  head: Head
+  props?: Record<string, Record<string, any>>
+  components?: Record<string, NuxtIslandClientResponse>
+  slots?: Record<string, NuxtIslandSlotResponse>
+}
+
+```
+
+---
+
+# Pure HTML brings a lot of limitations
+
+::two-cols
+
+````js
 {
   "id": "OPlPaWtESbsHmiL1DheP8Ny7Fu9YaBs2YJqXaFyHY",
   "head": {
@@ -277,15 +359,21 @@ clicks: 1
       }
     ]
   },
-  "html": "<div data-island-uid data-v-c0c0cf89> Was router enabled: true <br data-v-c0c0cf89> Props: <!-- eslint-disable-next-line vue/no-v-html --><pre data-v-c0c0cf89>{\n  \"number\": 100,\n  \"str\": \"hello world\",\n  \"obj\": {\n    \"json\": \"works\"\n  },\n  \"bool\": true\n}</pre></div>"
+  "html": `
+  <div data-island-uid data-v-c0c0cf89>
+    Was router enabled: true 
+    <br data-v-c0c0cf89> 
+    Props: 
+    <pre data-v-c0c0cf89>{\n  \"number\": 100,\n  \"str\": \"hello world\",\n  \"obj\": {\n    \"json\": \"works\"\n  },\n  \"bool\": true\n}
+    </pre>
+  </div>
+  `
 }
 ````
 
----
+<img v-drag="[550,102,349,391]" src="/assets/island_workaround.jpg" />
 
-# Pure HTML brings a lot of limitations
-
-<img v-drag="[300,122,349,391]" src="/assets/island_workaround.jpg" />
+::
 
 ---
 
@@ -852,9 +940,18 @@ layout: intro
 
 ---
 
+# What does it do ?
+
+- Convert a full App to AST
+- Render and convert a component to AST
+- generate chunks for server side
+
+---
+
 # The most important part
 
 ## Render under an AST format instead of pure HTML
+
 
 ---
 layout: intro
@@ -864,12 +961,14 @@ layout: intro
 
 ---
 
-# Translating vnodes to AST
+# Translating VNodes to AST
 
 ---
 
-# Applying it to Nuxt
+# Using this with NuxtIsland
 
+---
 
+# Vapor mode
 
 ---
