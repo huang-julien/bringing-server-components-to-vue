@@ -111,26 +111,11 @@ layout: intro
 
 <div>
 
-<v-clicks>
-
-- Client-side rendering
-- DOM manipulation focused
-- hash-based routing
-
-
-</v-clicks>
-
-<v-clicks>
-
-- Declarative UI
-- Composable Components
-- Virtual DOM (react, vue) - Incremental DOM (angular) - Compilation based (svelte - solid)
-
-</v-clicks>
+- Self contained
+- Reusable UI unit
+- Hold local state
 
 </div>
-
-
 
 <img src="/assets/frameworks-everywhere.jpg" />
 
@@ -142,22 +127,6 @@ Early  SPA emerged as a response to traditional multi-page websites, aiming to p
 Modern frontend frameworks have evolved significantly from early SPA frameworks, introducing more efficient rendering, better developer experiences, and improved performance patterns.
 -->
 
-
----
-
-# Component in modern frameworks
-
-<!-- 
-
-self-contained, reusable piece of UI that encapsulates structure, appearance, behavior, and state. 
-
-Encapsulation: Components bundle markup, styles, and logic together into a cohesive unit
-Composability: Larger UI systems are built by nesting and combining smaller components
-Reusability: Components can be used repeatedly across an application
-Isolation: Components maintain their own state and scope, minimizing side effects
-Declarative: Components describe what should appear rather than imperative DOM manipulation
-
--->
 
 ---
 
@@ -199,10 +168,29 @@ clicks: 5
 <ServerSideRendering />
 
 ---
+
+# Server components
+
+::two-cols
+
+<div>
+
+- server only
+- non interactive
+- zero JS shipped/loaded
+- fully isolated
+
+</div>
+
+<img src="/assets/servercomponent_meme.jpg" />
+
+::
+
+---
 clicks: 4
 ---
 
-# Server components by Meta frameworks
+# How would that work ?
 
 - Server only
 - Has access to server environment
@@ -217,9 +205,6 @@ clicks: 4
 # The example of React
 
 - Introduced by React 18
-- Can be pre-rendered
-- Not interactive by default
-- Can be async
 
 <img src="/assets/rsc.png" />
 
@@ -936,7 +921,17 @@ layout: intro
 
 # Bringing server components to Vue
 
-<img v-drag="[-13,-54,0,0]" src="/assets/vue-onigiri.png" />
+<img v-drag="[291,413,375,375]" src="/assets/vue-onigiri.png" />
+
+---
+layout: intro
+---
+
+# vue-onigiri
+
+<img v-drag="[309,312,383,216]"  src="/assets/onigiri.jpg" />
+
+<img v-drag="[353,-1,276,276]" src="/assets/vue-onigiri.png" />
 
 ---
 
@@ -948,20 +943,147 @@ layout: intro
 
 ---
 
-# The most important part
+::two-cols{class="gap-4"}
 
-## Render under an AST format instead of pure HTML
+<div>
 
+```ts
+const enum VServerComponentType {
+  Element,
+  Component,
+  Text,
+  Fragment,
+  Suspense,
+}
+```
 
----
-layout: intro
----
+````md magic-move
 
-# How ?
+```html
+  <div>
+    <div>1</div>
+    <div>2</div>
+  </div>
+```
 
----
+```html
+  <div>
+    <div>1</div>
+    <div>2</div>
+    <Counter />
+  </div>
+```
 
-# Translating VNodes to AST
+```html
+  <div>
+    <div>1</div>
+    <div>2</div>
+    <Counter v-load-client>
+    </Counter>
+  </div>
+```
+
+```html
+  <div>
+    <div>1</div>
+    <div>2</div>
+    <Counter v-load-client>
+      <div>
+        Hello VueJS Paris
+      </div>
+    </Counter>
+  </div>
+```
+
+````
+</div>
+
+````md magic-move{at:'0', class:'overflow-hidden'}
+
+```ts
+const ast = [
+  VServerComponentType.Element,
+  'div',
+  null,
+  [
+    [VServerComponentType.Element, 'div', null, '1'],
+    [VServerComponentType.Element, 'div', null, '2'],
+  ]
+]
+```
+
+```ts
+const ast = [
+  VServerComponentType.Element,
+  'div',
+  null,
+  [
+    [VServerComponentType.Element, 'div', null, '1'],
+    [VServerComponentType.Element, 'div', null, '2'],
+    [
+      VServerComponentType.Element,
+      'div',
+      null,
+      [VServerComponentType.Text, 'Counter: 0'],
+      [
+        VServerComponentType.Element, 
+        'button', 
+        null, 
+        [[VServerComponentType.Text, 'Increment']]],
+    ]
+  ]
+]
+```
+
+```ts
+const ast = [
+  VServerComponentType.Element,
+  'div',
+  null,
+  [
+    [VServerComponentType.Element, 'div', null, '1'],
+    [VServerComponentType.Element, 'div', null, '2'],
+    [
+      VServerComponentType.Component,
+      null,
+      "/test/fixtures/components/Counter.vue",
+      "export",
+      null
+    ]
+  ]
+]
+```
+
+```ts
+const ast = [
+  VServerComponentType.Element,
+  'div',
+  null,
+  [
+    [VServerComponentType.Element, 'div', null, '1'],
+    [VServerComponentType.Element, 'div', null, '2'],
+    [
+      VServerComponentType.Component,
+      null,
+      "/test/fixtures/components/Counter.vue",
+      "export",
+      [
+        [
+          VServerComponentType.Element, 
+          'div', 
+          null, 
+          'Hello VueJS Paris'
+        ],
+      ]
+    ]
+  ]
+]
+```
+
+````
+
+::
+
 
 ---
 
@@ -969,6 +1091,121 @@ layout: intro
 
 ---
 
-# Vapor mode
+# The most important part
+
+## Render under an AST format instead of pure HTML
+
+```ts
+interface NuxtIslandResponse {
+  id?: string
+  html: string
+  head: Head
+  props?: Record<string, Record<string, any>>
+  components?: Record<string, NuxtIslandClientResponse>
+  slots?: Record<string, NuxtIslandSlotResponse>
+}
+```
+
+```ts twoslash
+// ---cut-start---
+export const enum VServerComponentType {
+  Element,
+  Component,
+  Text,
+  Fragment,
+  Suspense,
+}
+type Tag = string;
+type ChunkPath = string;
+type Children = VServerComponent | undefined;
+type Props = Record<string, any> | undefined;
+type Attrs = Record<string, any> | undefined;
+type Slots = Record<string, Children> | undefined;
+type VServerComponentElement = [
+  VServerComponentType.Element,
+  Tag,
+  Attrs,
+  Children,
+];
+
+export type VServerComponentComponent = [
+  VServerComponentType.Component,
+  Props,
+  ChunkPath,
+  // export name
+  string,
+  Slots,
+];
+type VServerComponentText = [VServerComponentType.Text, string];
+type VServerComponentFragment = [VServerComponentType.Fragment, Children[]];
+type VServerComponentSuspense = [
+  VServerComponentType.Suspense,
+  VServerComponent[] | undefined,
+];
+
+type MaybePromise<T> = T | Promise<T>;
+
+type VServerComponentElementBuffered = [
+  VServerComponentType.Element,
+  Tag,
+  Attrs,
+  MaybePromise<(VServerComponentBuffered | undefined)[]> | undefined,
+];
+
+type VServerComponentComponentBuffered = [
+  VServerComponentType.Component,
+  Props,
+  ChunkPath,
+  // export name
+  string,
+  MaybePromise<Record<string, VServerComponent[] | undefined>> | undefined,
+];
+type VServerComponentTextBuffered = [VServerComponentType.Text, string];
+type VServerComponentFragmentBuffered = [
+  VServerComponentType.Fragment,
+  MaybePromise<VServerComponentBuffered[]> | undefined,
+];
+type VServerComponentSuspenseBuffered = [
+  VServerComponentType.Suspense,
+  MaybePromise<VServerComponentBuffered[]> | undefined,
+];
+
+export type VServerComponentBuffered =
+  | VServerComponentElementBuffered
+  | VServerComponentComponentBuffered
+  | VServerComponentTextBuffered
+  | VServerComponentFragmentBuffered
+  | VServerComponentSuspenseBuffered;
+
+export type VServerComponent =
+  | VServerComponentElement
+  | VServerComponentComponent
+  | VServerComponentText
+  | VServerComponentFragment
+  | VServerComponentSuspense;
+  interface NuxtIslandSlotResponse {
+  props: Array<unknown>
+  fallback?: string
+}
+
+interface NuxtIslandClientResponse {
+  html: string
+  props: unknown
+  chunk: string
+  slots?: Record<string, string>
+}
+type Head = any
+// ---cut-end---
+interface NuxtIslandResponse {
+  id?: string
+  html: VServerComponent
+  head: Head
+  props?: Record<string, Record<string, any>>
+  components?: Record<string, NuxtIslandClientResponse>
+  slots?: Record<string, NuxtIslandSlotResponse>
+}
+```
 
 ---
+
+# What about Vapor mode ?
