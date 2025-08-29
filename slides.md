@@ -36,7 +36,9 @@ seoMeta:
 
 # Hello 👋 I'm Julien
 
-## And i'm a great fan of Open-Source
+## I'm a great fan of Open-Source
+
+## And the frontend technical lead at Leetchi
 
 <img v-drag="[36,171,225,225]" src="/assets/pfp.jpg" class="rounded-full" />
  
@@ -68,21 +70,6 @@ vue-onigiri
 </div>
 </div>
 
----
-
-# Hobbies
-
-<img v-drag="[326,111,338,190]" class="rounded-lg" src="/assets/multitask.jpg" />
-
-
-<img v-drag="[641,135,385,217,19]" class="rounded-lg" src="/assets/multitask_2.jpg" />
-
-
-<img v-drag="[16,229,333,187,-12]" class="rounded-lg" src="/assets/music.jpg" />
-
-<img v-drag="[439,356,185,185]" class="rounded-lg" src="/assets/my_wrist.jpg" />
-
-<p v-drag="[417,306,318,24]">My hands and wrists:</p>
 
 ---
 layout: intro
@@ -92,7 +79,52 @@ layout: intro
 
 ---
 
-# Frontend frameworks
+# Components in frontend frameworks
+
+<div class="grid gap-4 grid-cols-[_2fr_1fr]">
+
+<div>
+
+- Self contained
+- Reusable UI unit
+- Hold local state
+
+<two-cols class="gap-4">
+
+```tsx
+export default function Gallery() {
+  return (
+    <section>
+      <h1>Amazing scientists</h1>
+      <Profile />
+      <Profile />
+      <Profile />
+    </section>
+  );
+}
+```
+
+```html
+<script setup>
+import { ref } from 'vue'
+
+const msg = ref('Hello World!')
+</script>
+
+<template>
+  <h1>{{ msg }}</h1>
+  <input v-model="msg" />
+</template>
+
+<style>
+h1 { color: blanchedalmond; }
+</style>
+```
+
+</two-cols>
+
+</div>
+<div>
 
 
 <div class="flex gap-4 my-5">
@@ -107,24 +139,15 @@ layout: intro
 
 </div>
 
-::two-cols
-
-<div>
-
-- Self contained
-- Reusable UI unit
-- Hold local state
+<img src="/assets/frameworks-everywhere.jpg" />
+</div>
 
 </div>
 
-<img src="/assets/frameworks-everywhere.jpg" />
-
-::
-
 <!-- 
 
-Early  SPA emerged as a response to traditional multi-page websites, aiming to provide more dynamic, desktop-like experiences on the web.
-Modern frontend frameworks have evolved significantly from early SPA frameworks, introducing more efficient rendering, better developer experiences, and improved performance patterns.
+A component in modern frontend frameworks is a self-contained, reusable piece of UI that encapsulates structure, appearance, behavior, and state.
+
 -->
 
 
@@ -216,6 +239,11 @@ clicks: 4
 
 ---
 
+# Server components brings a lot of complexities
+
+---
+
+
 # And what about Nuxt ?
 
 - Allows server side rendering
@@ -235,53 +263,37 @@ layout: intro
 
 # How to use NuxtIsland
 
-```bash
-|- components
-|  |-- islands
-|  |   |-- MyIsland.vue
-|  |-- MyServerComponent.server.ts
+
+::window{filename="components/MyContent.vue"}
+```html
+<template>
+    <div class="my-auto h-full">
+        <ContentRenderer v-if="content" :value="content" />
+    </div>
+</template>
+
+<script setup lang="ts">
+const props = defineProps<{
+  id: string
+}>()
+const { data: content } = await useAsyncData(computed(() => id),() => queryCollection('content').path(route.path).first())
+</script>
 ```
+::
 
 <Spacer />
 
-::window{filename="components/island/YourIsland.vue"}
-
-````md magic-move
+::window{filename="pages/index.vue"}
 
 ```html
 <template>
   <div>
-    <NuxtIsland name="MyIsland" />
+    <NuxtIsland name="MyContent" :props="{id: 'some-id'}" />
   </div>
 </template>
 ```
-
-```html
-<template>
-  <div>
-    <MyServerComponent />
-  </div>
-</template>
-```
-
-````
 
 ::
-
----
-clicks: 1
----
-
-# A mix of Astro Islands and React Server components
-
-
-<div class="grid grid-cols-2 gap-4">
-
-  <AstroIsland />
-
-  <ServerComponentSteps />
-
-</div>
 
 ---
 
@@ -771,7 +783,6 @@ export default defineComponent({
     html: `
       <div data-island-uid="some-uid">
         this is a server component
-
         <div 
           style="display: contents;"
           data-island-uid="34ddcd4d-6659-4df9-8f14-bfff83699976" 
@@ -781,13 +792,11 @@ export default defineComponent({
             Sugar Counter 12 x 1 = 12 <button> Inc </button>
           </div>
         </div>
-
         <div 
           style="display: contents;" 
           data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"
           data-island-slot="default"
         >
-
         </div>
       </div>
     `
@@ -820,7 +829,6 @@ export default defineComponent({
     html: `
       <div data-island-uid="some-uid">
         this is a server component
-
         <div 
           style="display: contents;"
           data-island-uid="34ddcd4d-6659-4df9-8f14-bfff83699976" 
@@ -830,13 +838,11 @@ export default defineComponent({
             Sugar Counter 12 x 1 = 12 <button> Inc </button>
           </div>
         </div>
-
         <div 
           style="display: contents;" 
           data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"
           data-island-slot="default"
         >
-
         </div>
       </div>
     `
@@ -868,7 +874,6 @@ export default defineComponent({
     html: `
       <div data-island-uid="some-uid">
         this is a server component
-
         <div 
           style="display: contents;"
           data-island-uid="34ddcd4d-6659-4df9-8f14-bfff83699976" 
@@ -878,13 +883,11 @@ export default defineComponent({
             Sugar Counter 12 x 1 = 12 <button> Inc </button>
           </div>
         </div>
-
         <div 
           style="display: contents;" 
           data-island-uid="17868edc-8f2a-43d9-86a8-0fc49e82d07b"
           data-island-slot="default"
         >
-
         </div>
       </div>
     `
@@ -937,9 +940,14 @@ layout: intro
 
 # What does it do ?
 
-- Convert a full App to AST
-- Render and convert a component to AST
-- generate chunks for server side
+<v-clicks>
+
+- Serialize VNodes
+- that's... all
+
+</v-clicks>
+
+<img v-click v-drag="[283,195,448,284]" src="/assets/itaintmuch.png" />
 
 ---
 
@@ -1205,7 +1213,18 @@ interface NuxtIslandResponse {
   slots?: Record<string, NuxtIslandSlotResponse>
 }
 ```
+---
+layout: intro
+---
+
+# Anything else to take care of ?
+
+---
+
+# Chunking
 
 ---
 
 # What about Vapor mode ?
+
+---
