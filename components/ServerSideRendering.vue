@@ -36,7 +36,7 @@ const steps = [
     },
     {
         icon: 'logos:vue',
-        title: 'App created server side'
+        title: 'App created client side'
     },
     {
         icon: 'devicon:javascript',

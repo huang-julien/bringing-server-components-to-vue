@@ -36,9 +36,7 @@ seoMeta:
 
 # Hello 👋 I'm Julien
 
-## I'm a great fan of Open-Source
-
-## And the frontend technical lead at Leetchi
+### I'm currently the frontend technical lead at Leetchi
 
 <img v-drag="[36,171,225,225]" src="/assets/pfp.jpg" class="rounded-full" />
  
@@ -191,6 +189,8 @@ clicks: 5
 <ServerSideRendering />
 
 ---
+clicks: 4
+---
 
 # Server components
 
@@ -199,37 +199,190 @@ clicks: 5
 <div>
 
 - server only
-- non interactive
-- zero JS shipped/loaded
+- zero JS shipped/loaded to your browser
 - fully isolated
+- non interactive
+
+<ServerComponentRendering />
 
 </div>
 
-<img src="/assets/servercomponent_meme.jpg" />
+<img v-drag="[613,76,319,425]" src="/assets/servercomponent_meme.jpg" />
 
 ::
 
 ---
-clicks: 4
+
+# Benefits
+
+- Performances
+- Faster initial load
+- Direct access to backend resources
+
+::window{filename="components/ServerComponent.vue"}
+```html
+<template>
+    <div class="my-auto h-full">
+        <ContentRenderer v-if="content" :value="content" />
+    </div>
+</template>
+
+<script setup lang="ts">
+// tooooonnnss of javascript
+import { ContentRenderer } from "markdown-renderer"
+
+const props = defineProps<{ id: string }>()
+
+// huuuuuuuuge payload
+const data = await fetch(`some-url.com?id=id`)
+  .then((r) => r.json())
+</script>
+```
+::
+
+---
+layout: intro
 ---
 
-# How would that work ?
-
-- Server only
-- Has access to server environment
-- No javascript downloaded by browsers
-- No interactivity
-
-<ServerComponentRendering />
-
+# Server components can make developpement more complex
 
 ---
 
-# The example of React
+## Where code runs
 
-- Introduced by React 18
+<two-cols gap-4>
 
-<img src="/assets/rsc.png" />
+::window{filename="components/FollowButton.vue"}
+
+```html
+<script setup lang="ts">
+const props = defineProps<{ userId: string }>()
+const following = ref(false)
+// interactivity expected from browser interaction
+function toggle() { following.value = !following.value }
+</script>
+
+<template>
+  <button @click="toggle">
+    {{ following ? 'Unfollow' : 'Follow' }}
+  </button>
+</template>
+```
+::
+
+::window{filename="components/UserList.server.vue"}
+
+````md magic-move
+```html
+<script setup lang="ts">
+// Runs only server side, rendered statically
+const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
+</script>
+
+<template>
+  <ul>
+    <li v-for="u in users" :key="u.id">
+      {{ u.name }}
+      <FollowButton :user-id="u.id" />
+    </li>
+  </ul>
+</template>
+```
+
+```html
+<script setup lang="ts">
+// Runs only server side, rendered statically
+const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
+</script>
+
+<template>
+  <ul>
+    <li v-for="u in users" :key="u.id">
+      {{ u.name }}
+      <ClientOnly>
+        <FollowButton :user-id="u.id" />
+      </ClientOnly>
+    </li>
+  </ul>
+</template>
+```
+
+```html
+<script setup lang="ts">
+// Runs only server side, rendered statically
+const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
+</script>
+
+<template>
+  <ul>
+    <li v-for="u in users" :key="u.id">
+      {{ u.name }}
+      <FollowButton v-load-client :user-id="u.id" />
+    </li>
+  </ul>
+</template>
+```
+````
+::
+
+</two-cols>
+
+---
+
+## Pure vs effect
+
+::window{filename="components/UserList.server.vue"}
+```html
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+const now = ref(new Date())
+onMounted(() => {
+  // Browser-only API and timers are effects — this won’t run on server
+  setInterval(() => { now.value = new Date() }, 1000)
+})
+</script>
+
+<template>
+  <time>{{ now.toLocaleTimeString() }}</time>
+</template>
+```
+::
+
+---
+
+## Isolation
+
+::window{filename="components/User.server.vue"}
+
+```html
+<script setup lang="ts">
+import { authStore } from "@/stores"
+// This runs server only and without your browser context !
+const auth = useAuthStore()
+</script>
+
+<template>
+  <div>
+    {{ auth.username}}
+  </div>
+</template>
+```
+
+::
+
+---
+
+## Poor component design
+
+```bash{all|3|4|5|6}
+|- App
+  |- client component
+  |- server component
+    |- client component
+      |- server component
+        |- client component
+  |- client component
+```
 
 ---
 
@@ -238,11 +391,6 @@ clicks: 4
 <img class="rounded-xl mx-auto" src="/assets/vsc.png" />
 
 ---
-
-# Server components brings a lot of complexities
-
----
-
 
 # And what about Nuxt ?
 
@@ -294,49 +442,6 @@ const { data: content } = await useAsyncData(computed(() => id),() => queryColle
 ```
 
 ::
-
----
-
-# An endpoint and a component
-
-- `/__nuxt_island`
-  - Creates a Vue application and renders a single component
-  - Stringifies the render and returns a JSON response
-- `NuxtIsland`
-  - Receives a `name` prop and calls the endpoint
-  - On each response, `NuxtIsland` renders the content statically
-
-<Spacer />
-<Spacer />
-<Spacer /> 
- 
-
-```ts twoslash
-// ---cut-start---
-interface NuxtIslandSlotResponse {
-  props: Array<unknown>
-  fallback?: string
-}
-
-interface NuxtIslandClientResponse {
-  html: string
-  props: unknown
-  chunk: string
-  slots?: Record<string, string>
-}
-type Head = any
-// ---cut-end---
-
-interface NuxtIslandResponse {
-  id?: string
-  html: string
-  head: Head
-  props?: Record<string, Record<string, any>>
-  components?: Record<string, NuxtIslandClientResponse>
-  slots?: Record<string, NuxtIslandSlotResponse>
-}
-
-```
 
 ---
 
@@ -742,7 +847,13 @@ export default defineComponent({
 
 ---
 
-# How does NuxtIsland render your server component ?
+# A workaround I'm crying each time i'm working on it
+
+<v-click>
+<img src="/assets/mypain_islandrenderingissue.png" class="w-1/2 mx-auto" />
+</v-click>
+
+---
 
 <div class="overflow-auto h-fit">
 
@@ -943,6 +1054,7 @@ layout: intro
 <v-clicks>
 
 - Serialize VNodes
+- Emit components chunks that returns vnode for server bundle
 - that's... all
 
 </v-clicks>
@@ -1055,7 +1167,7 @@ const ast = [
       VServerComponentType.Component,
       null,
       "/test/fixtures/components/Counter.vue",
-      "export",
+      "default",
       null
     ]
   ]
@@ -1074,15 +1186,15 @@ const ast = [
       VServerComponentType.Component,
       null,
       "/test/fixtures/components/Counter.vue",
-      "export",
-      [
-        [
+      "default",
+      {
+        default: [
           VServerComponentType.Element, 
           'div', 
           null, 
           'Hello VueJS Paris'
-        ],
-      ]
+        ]
+      }
     ]
   ]
 ]
@@ -1095,13 +1207,7 @@ const ast = [
 
 ---
 
-# Using this with NuxtIsland
-
----
-
-# The most important part
-
-## Render under an AST format instead of pure HTML
+# Applying it to NuxtIsland
 
 ```ts
 interface NuxtIslandResponse {
@@ -1206,25 +1312,21 @@ type Head = any
 // ---cut-end---
 interface NuxtIslandResponse {
   id?: string
-  html: VServerComponent
+  ast: VServerComponent
   head: Head
   props?: Record<string, Record<string, any>>
   components?: Record<string, NuxtIslandClientResponse>
   slots?: Record<string, NuxtIslandSlotResponse>
 }
 ```
----
-layout: intro
----
-
-# Anything else to take care of ?
-
----
-
-# Chunking
 
 ---
 
 # What about Vapor mode ?
 
 ---
+
+# Future ideas
+
+- Create a playground similar to Vue SFC Playground
+- Compilation based AST render function

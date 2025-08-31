@@ -2,11 +2,11 @@
   <div>
     <div class="grid grid-cols-3 gap-2">
         <template v-for="(step, index) in steps">
-        <div  v-if="clicks >= index" class="flex flex-col items-center text-center p-4 border rounded-lg">
-            <span class="text-4xl mb-2">
+        <div  v-if="clicks >= index" class="flex flex-col items-center text-center p-2 border rounded-lg">
+            <span class="text-3xl mb">
                 <Icon :icon="step.icon" />
             </span>
-            <h3 class="font-semibold">{{ step.title }}</h3>
+            <p class="font-semibold text-xs">{{ step.title }}</p>
         </div></template>
     </div>
   </div>
