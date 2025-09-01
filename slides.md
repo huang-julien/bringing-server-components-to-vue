@@ -1062,6 +1062,12 @@ layout: intro
 <img v-click v-drag="[283,195,448,284]" src="/assets/itaintmuch.png" />
 
 ---
+layout: intro
+---
+
+# Introducing AST for Vue
+
+---
 
 ::two-cols{class="gap-4"}
 
@@ -1105,17 +1111,68 @@ const enum VServerComponentType {
 
 ```html
   <div>
-    <div>1</div>
-    <div>2</div>
-    <Counter v-load-client>
-      <div>
-        Hello VueJS Paris
-      </div>
-    </Counter>
+    <Suspense>
+      <Counter v-load-client>
+        <div>
+          Hello VueJS Paris
+        </div>
+      </Counter>
+    </Suspense>
   </div>
 ```
 
 ````
+
+````md magic-move{at:'0'}
+```ts
+type VServerComponentElement = [
+  VServerComponentType.Element,
+  Tag,
+  Attrs,
+  Children,
+]
+```
+```ts
+type VServerComponentComponent = [
+  VServerComponentType.Component,
+  Props,
+  // client chunk location
+  ChunkPath,
+  // export name
+  string,
+  Slots,
+]
+```
+```ts
+type VServerComponentComponent = [
+  VServerComponentType.Component,
+  Props,
+  // client chunk location
+  ChunkPath,
+  // export name
+  string,
+  Slots,
+]
+```
+```ts
+type VServerComponentComponent = [
+  VServerComponentType.Component,
+  Props,
+  // client chunk location
+  ChunkPath,
+  // export name
+  string,
+  Slots,
+]
+```
+```ts
+type VServerComponentSuspense = [
+  VServerComponentType.Suspense,
+  VServerComponent[] | undefined,
+];
+```
+````
+
 </div>
 
 ````md magic-move{at:'0', class:'overflow-hidden'}
@@ -1195,6 +1252,35 @@ const ast = [
           'Hello VueJS Paris'
         ]
       }
+    ]
+  ]
+]
+```
+```ts
+const ast = [
+  VServerComponentType.Element,
+  'div',
+  null,
+  [
+    [
+      VServerComponentType.Suspense,
+      null,
+      [
+        [
+          VServerComponentType.Component,
+          null,
+          "/test/fixtures/components/Counter.vue",
+          "default",
+          {
+            default: [
+              VServerComponentType.Element, 
+              'div', 
+              null, 
+              'Hello VueJS Paris'
+            ]
+          }
+        ]
+      ]
     ]
   ]
 ]
