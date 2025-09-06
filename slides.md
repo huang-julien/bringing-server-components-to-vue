@@ -1410,9 +1410,48 @@ interface NuxtIslandResponse {
 
 # What about Vapor mode ?
 
+--- 
+
+# Current state
+
+<div >
+<v-switch v-click>
+<template #1>
+<img  id="building" src="/assets/building.png" />
+</template>
+<template #2>
+
+<img id="spaghetii" src="/assets/spaghettis.jpg" />
+</template>
+</v-switch>
+</div>
+
 ---
 
 # Future ideas
 
+<v-clicks>
+
 - Create a playground similar to Vue SFC Playground
 - Compilation based AST render function
+- Fully implement it for Nuxt 5
+
+</v-clicks>
+
+---
+layout: intro
+---
+
+# Merci ! ❤️
+
+
+<div>
+<logos-github-icon /> @huang-julien
+</div>
+<div>
+<logos-bluesky /> julienhuang-dev.bsky.social
+</div>
+<div>
+<logos-linkedin-icon /> julien-huang
+</div>
+
