@@ -33,7 +33,7 @@
             </div>
         </span>
 
-        <div class="bg-black-500 text-white">
+        <div class="bg-black-500 text-white"  :class="{ 'bg-black': clicks > 0 }" >
             Footer
         </div>
     </div>

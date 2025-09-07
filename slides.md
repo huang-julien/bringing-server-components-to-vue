@@ -36,7 +36,8 @@ seoMeta:
 
 # Hello 👋 I'm Julien
 
-### I'm currently the frontend technical lead at Leetchi
+### Frontend technical lead at Leetchi
+### Nuxt core team member
 
 <img v-drag="[36,171,225,225]" src="/assets/pfp.jpg" class="rounded-full" />
  
@@ -299,24 +300,6 @@ const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
   <ul>
     <li v-for="u in users" :key="u.id">
       {{ u.name }}
-      <ClientOnly>
-        <FollowButton :user-id="u.id" />
-      </ClientOnly>
-    </li>
-  </ul>
-</template>
-```
-
-```html
-<script setup lang="ts">
-// Runs only server side, rendered statically
-const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
-</script>
-
-<template>
-  <ul>
-    <li v-for="u in users" :key="u.id">
-      {{ u.name }}
       <FollowButton v-load-client :user-id="u.id" />
     </li>
   </ul>
@@ -329,7 +312,7 @@ const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
 
 ---
 
-## Pure vs effect
+## Effect and reactivity free components
 
 ::window{filename="components/UserList.server.vue"}
 ```html
@@ -408,6 +391,27 @@ layout: intro
 <img src="/assets/island_scene.svg" />
 
 ---
+clicks: 1
+---
+
+::two-cols{class="gap-5"}
+
+<NuxtIsland />
+
+```ts
+interface NuxtIslandResponse {
+  id?: string
+  html: string
+  head: Head
+  props?: Record<string, Record<string, any>>
+  components?: Record<string, NuxtIslandClientResponse>
+  slots?: Record<string, NuxtIslandSlotResponse>
+}
+```
+
+::
+
+---
 
 # How to use NuxtIsland
 
@@ -473,7 +477,7 @@ const { data: content } = await useAsyncData(computed(() => id),() => queryColle
 }
 ````
 
-<img v-drag="[550,102,349,391]" src="/assets/island_workaround.jpg" />
+<img v-drag="[550,102,349,391]" v-click src="/assets/island_workaround.jpg" />
 
 ::
 
@@ -846,6 +850,8 @@ export default defineComponent({
 </Window>
 
 ---
+layout: intro
+---
 
 # A workaround I'm crying each time i'm working on it
 
@@ -1035,7 +1041,7 @@ layout: intro
 
 # Bringing server components to Vue
 
-<img v-drag="[291,413,375,375]" src="/assets/vue-onigiri.png" />
+<img v-drag="[291,413,375,375]" src="/assets/vue-onigiri.svg" />
 
 ---
 layout: intro
@@ -1045,7 +1051,7 @@ layout: intro
 
 <img v-drag="[309,312,383,216]"  src="/assets/onigiri.jpg" />
 
-<img v-drag="[353,-1,276,276]" src="/assets/vue-onigiri.png" />
+<img v-drag="[353,-1,276,276]" src="/assets/vue-onigiri.svg" />
 
 ---
 
@@ -1054,7 +1060,7 @@ layout: intro
 <v-clicks>
 
 - Serialize VNodes
-- Emit components chunks that returns vnode for server bundle
+- Allow one component to know where to retrieve itself
 - that's... all
 
 </v-clicks>
@@ -1062,233 +1068,97 @@ layout: intro
 <img v-click v-drag="[283,195,448,284]" src="/assets/itaintmuch.png" />
 
 ---
+
+# Vite plugin to provide information about the components location
+
+```ts
+import Counter from "../components/Counter.vue"
+
+// build-time
+console.log(Counter.__chunk, Counter.__export)
+// log '/hash.js', 'default'
+```
+
+---
 layout: intro
 ---
 
-# Introducing AST for Vue
+# Runtime utilities to serialize and deserialize vnodes
 
----
-
-::two-cols{class="gap-4"}
-
+<two-cols gap-4>
 <div>
+<v-clicks>
 
-```ts
-const enum VServerComponentType {
-  Element,
-  Component,
-  Text,
-  Fragment,
-  Suspense,
-}
-```
+- `serializeApp(app: App, context: SSRContext = {}): VServerComponent`
+- `serializeComponent(component: Component, props?: any,context: SSRContext = {})`
+- `function serializeVNode(vnode: VNodeChild, parentInstance?: ComponentInternalInstance)`
+- `function renderOnigiri(input?: VServerComponent,importFn = defaultImportFn,): VNode | undefined`
+
+</v-clicks>
+</div>
 
 ````md magic-move
 
-```html
-  <div>
-    <div>1</div>
-    <div>2</div>
-  </div>
+```ts
+import "./assets/main.css";
+import { serializeApp } from "vue-onigiri/runtime/serialize"
+import { createApp, Suspense, h } from "vue";
+import App from "./App.vue";
+
+const app = createApp({
+    setup() {
+        return () =>  h(Suspense, null, {
+
+            default: () => h(App)
+        }
+        )
+    }
+}).mount("#app");
+
+serializeApp(app).then(ast => { /* */})
+```
+
+```ts
+import Counter from "./Counter.vue"
+import { serializeComponent } from "vue-onigiri/runtime/serialize"
+
+export default async function (req, res, next) {
+  return res.send(JSON.stringify(
+    await serializeComponent(Counter, {
+      multiplyBy: parseInt(req.query.multiplier) ?? 1
+    })
+  ))
+}
 ```
 
 ```html
-  <div>
-    <div>1</div>
-    <div>2</div>
-    <Counter />
-  </div>
+<template>
+  <Counter @vue:mounted="onVnodeUpdated" @vue:updated="onVnodeUpdated" />
+</template>
+<script setup lang="ts">
+  
+async function onVnodeUpdated(vnode: VNode) {
+  const ast = await serializeVNode(vnode)
+}
+</script>
 ```
 
-```html
-  <div>
-    <div>1</div>
-    <div>2</div>
-    <Counter v-load-client>
-    </Counter>
-  </div>
-```
+```ts
+import { renderOnigiri } from "vue-onigiri/runtime/deserialize"
 
-```html
-  <div>
-    <Suspense>
-      <Counter v-load-client>
-        <div>
-          Hello VueJS Paris
-        </div>
-      </Counter>
-    </Suspense>
-  </div>
+export default defineComponent({
+  props: ['ast'],
+  setup (props) {
+    return () => renderOnigiri(ast)
+  }
+})
 ```
 
 ````
 
-````md magic-move{at:'0'}
-```ts
-type VServerComponentElement = [
-  VServerComponentType.Element,
-  Tag,
-  Attrs,
-  Children,
-]
-```
-```ts
-type VServerComponentComponent = [
-  VServerComponentType.Component,
-  Props,
-  // client chunk location
-  ChunkPath,
-  // export name
-  string,
-  Slots,
-]
-```
-```ts
-type VServerComponentComponent = [
-  VServerComponentType.Component,
-  Props,
-  // client chunk location
-  ChunkPath,
-  // export name
-  string,
-  Slots,
-]
-```
-```ts
-type VServerComponentComponent = [
-  VServerComponentType.Component,
-  Props,
-  // client chunk location
-  ChunkPath,
-  // export name
-  string,
-  Slots,
-]
-```
-```ts
-type VServerComponentSuspense = [
-  VServerComponentType.Suspense,
-  VServerComponent[] | undefined,
-];
-```
-````
+</two-cols>
 
-</div>
 
-````md magic-move{at:'0', class:'overflow-hidden'}
-
-```ts
-const ast = [
-  VServerComponentType.Element,
-  'div',
-  null,
-  [
-    [VServerComponentType.Element, 'div', null, '1'],
-    [VServerComponentType.Element, 'div', null, '2'],
-  ]
-]
-```
-
-```ts
-const ast = [
-  VServerComponentType.Element,
-  'div',
-  null,
-  [
-    [VServerComponentType.Element, 'div', null, '1'],
-    [VServerComponentType.Element, 'div', null, '2'],
-    [
-      VServerComponentType.Element,
-      'div',
-      null,
-      [VServerComponentType.Text, 'Counter: 0'],
-      [
-        VServerComponentType.Element, 
-        'button', 
-        null, 
-        [[VServerComponentType.Text, 'Increment']]],
-    ]
-  ]
-]
-```
-
-```ts
-const ast = [
-  VServerComponentType.Element,
-  'div',
-  null,
-  [
-    [VServerComponentType.Element, 'div', null, '1'],
-    [VServerComponentType.Element, 'div', null, '2'],
-    [
-      VServerComponentType.Component,
-      null,
-      "/test/fixtures/components/Counter.vue",
-      "default",
-      null
-    ]
-  ]
-]
-```
-
-```ts
-const ast = [
-  VServerComponentType.Element,
-  'div',
-  null,
-  [
-    [VServerComponentType.Element, 'div', null, '1'],
-    [VServerComponentType.Element, 'div', null, '2'],
-    [
-      VServerComponentType.Component,
-      null,
-      "/test/fixtures/components/Counter.vue",
-      "default",
-      {
-        default: [
-          VServerComponentType.Element, 
-          'div', 
-          null, 
-          'Hello VueJS Paris'
-        ]
-      }
-    ]
-  ]
-]
-```
-```ts
-const ast = [
-  VServerComponentType.Element,
-  'div',
-  null,
-  [
-    [
-      VServerComponentType.Suspense,
-      null,
-      [
-        [
-          VServerComponentType.Component,
-          null,
-          "/test/fixtures/components/Counter.vue",
-          "default",
-          {
-            default: [
-              VServerComponentType.Element, 
-              'div', 
-              null, 
-              'Hello VueJS Paris'
-            ]
-          }
-        ]
-      ]
-    ]
-  ]
-]
-```
-
-````
-
-::
 
 
 ---
