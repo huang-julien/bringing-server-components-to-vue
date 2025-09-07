@@ -1079,25 +1079,36 @@ console.log(Counter.__chunk, Counter.__export)
 // log '/hash.js', 'default'
 ```
 
----
-layout: intro
----
+--- 
 
 # Runtime utilities to serialize and deserialize vnodes
+ 
+<v-switch>
 
-<two-cols gap-4>
-<div>
-<v-clicks>
+<template #0>
 
-- `serializeApp(app: App, context: SSRContext = {}): VServerComponent`
-- `serializeComponent(component: Component, props?: any,context: SSRContext = {})`
-- `function serializeVNode(vnode: VNodeChild, parentInstance?: ComponentInternalInstance)`
-- `function renderOnigiri(input?: VServerComponent,importFn = defaultImportFn,): VNode | undefined`
+`serializeApp(app: App, context: SSRContext = {}): VServerComponent`
 
-</v-clicks>
-</div>
+</template>
+<template #1>
 
-````md magic-move
+`serializeComponent(component: Component, props?: any,context: SSRContext = {})`
+
+</template>
+<template #2>
+
+`function serializeVNode(vnode: VNodeChild, parentInstance?: ComponentInternalInstance)`
+
+</template>
+<template #3>
+
+`function renderOnigiri(input?: VServerComponent,importFn = defaultImportFn,): VNode | undefined`
+
+</template>
+
+</v-switch> 
+
+````md magic-move{at:'0'}
 
 ```ts
 import "./assets/main.css";
@@ -1154,9 +1165,7 @@ export default defineComponent({
 })
 ```
 
-````
-
-</two-cols>
+```` 
 
 
 
@@ -1276,10 +1285,6 @@ interface NuxtIslandResponse {
 }
 ```
 
----
-
-# What about Vapor mode ?
-
 --- 
 
 # Current state
@@ -1298,13 +1303,13 @@ interface NuxtIslandResponse {
 
 ---
 
-# Future ideas
+# Roadmap
 
 <v-clicks>
 
-- Create a playground similar to Vue SFC Playground
-- Compilation based AST render function
 - Fully implement it for Nuxt 5
+- Compilation based AST render function
+- Create a playground similar to Vue SFC Playground
 
 </v-clicks>
 
