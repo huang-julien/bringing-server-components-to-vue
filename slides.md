@@ -690,10 +690,10 @@ layout: intro
 
 <img v-drag="[353,-1,276,276]" src="/assets/vue-onigiri.svg" />
 
-<img v-drag="[185,141,130,130,-19]" src="/assets/anthony.png" />
+<img v-drag="[185,141,130,130,-19]" class="rounded-full  overflow-hidden" src="/assets/anthony.png" />
 <v-drag-arrow pos="325,244,65,30"/>
 
-<img v-drag="[683,122,102,102,14]" src="/assets/lucie.png" />
+<img v-drag="[683,122,102,102,14]" class="rounded-full overflow-hidden" src="/assets/lucie.png" />
 
 <v-drag-arrow pos="685,186,-100,-41"/>
 
