@@ -684,6 +684,13 @@ layout: intro
 
 <img v-drag="[353,-1,276,276]" src="/assets/vue-onigiri.svg" />
 
+<img v-drag="[185,141,130,130,-19]" src="/assets/anthony.png" />
+<v-drag-arrow pos="325,244,65,30"/>
+
+<img v-drag="[683,122,102,102,14]" src="/assets/lucie.png" />
+
+<v-drag-arrow pos="685,186,-100,-41"/>
+
 ---
 
 # What does it do ?
@@ -710,7 +717,7 @@ console.log(Counter.__chunk, Counter.__export)
 // log '/hash.js', 'default'
 ```
 
---- 
+---
 
 # Runtime utilities to serialize and deserialize vnodes
  
@@ -994,7 +1001,7 @@ interface NuxtIslandResponse {
 
 </div>
 
---- 
+---
 
 # Current state
 
@@ -1038,4 +1045,3 @@ layout: intro
 <div>
 <logos-linkedin-icon /> julien-huang
 </div>
-
