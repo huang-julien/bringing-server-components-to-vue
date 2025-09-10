@@ -376,10 +376,16 @@ const auth = useAuthStore()
 ---
 
 # And what about Nuxt ?
+ 
+<v-clicks>
 
+- THE meta-framework around VueJS
+- Powered by Nitro and UNJS
 - Allows server side rendering
 - Allows pre-rendering your app
+- VueJS application runs server side and client side
 
+</v-clicks> 
 <img v-drag="[618,74,275,413]" src="/assets/nuxtisland.png" />
 
 ---
