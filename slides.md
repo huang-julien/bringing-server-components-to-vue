@@ -933,7 +933,6 @@ interface NuxtIslandResponse {
 
 <div class="h-[50vh] overflow-auto">
 
-````md magic-move
 
 ```ts
 (_ctx: any, _cache: any) => {
@@ -997,15 +996,16 @@ interface NuxtIslandResponse {
   ]
 }
 ```
+
+</div>
+
+---
+
 ```ts
 () => {
   return renderOnigiri(ast.value)
 }
 ```
-
-````
-
-</div>
 
 ---
 
