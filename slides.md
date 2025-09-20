@@ -78,80 +78,6 @@ layout: intro
 
 ---
 
-# Components in frontend frameworks
-
-<div class="grid gap-4 grid-cols-[_2fr_1fr]">
-
-<div>
-
-- Self contained
-- Reusable UI unit
-- Hold local state
-
-<two-cols class="gap-4">
-
-```tsx
-export default function Gallery() {
-  return (
-    <section>
-      <h1>Amazing scientists</h1>
-      <Profile />
-      <Profile />
-      <Profile />
-    </section>
-  );
-}
-```
-
-```html
-<script setup>
-import { ref } from 'vue'
-
-const msg = ref('Hello World!')
-</script>
-
-<template>
-  <h1>{{ msg }}</h1>
-  <input v-model="msg" />
-</template>
-
-<style>
-h1 { color: blanchedalmond; }
-</style>
-```
-
-</two-cols>
-
-</div>
-<div>
-
-
-<div class="flex gap-4 my-5">
-
-<logos-vue size="2rem" />
-
-<devicon-angular size="2rem" />
-
-<devicon-react size="2rem"  />
-
-<logos-svelte-icon size="2rem" />
-
-</div>
-
-<img src="/assets/frameworks-everywhere.jpg" />
-</div>
-
-</div>
-
-<!-- 
-
-A component in modern frontend frameworks is a self-contained, reusable piece of UI that encapsulates structure, appearance, behavior, and state.
-
--->
-
-
----
-
 # Meta-frameworks
 
 <div class="flex gap-4 my-5">
@@ -292,6 +218,8 @@ const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
 
 ```html
 <script setup lang="ts">
+"use client";
+
 // Runs only server side, rendered statically
 const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
 </script>
@@ -300,7 +228,7 @@ const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
   <ul>
     <li v-for="u in users" :key="u.id">
       {{ u.name }}
-      <FollowButton v-load-client :user-id="u.id" />
+      <FollowButton :user-id="u.id" />
     </li>
   </ul>
 </template>
@@ -367,6 +295,87 @@ const auth = useAuthStore()
   |- client component
 ```
 
+````md magic-move{at:'2'}
+
+```bash
+- Request
+```
+
+```bash
+- Request
+- Import JS
+```
+
+```bash
+- Request
+- Import JS
+- Request
+```
+
+```bash
+- Request
+- Import JS
+- Request
+- Import JS
+```
+
+````
+
+---
+
+# IRL server components with NextJS and React server components 
+
+- AST converted into React Trees client side
+- Components are server only by default
+- Declarative client components with `"use client"` magic string
+
+````md magic-move
+
+
+```tsx
+export default function UsersList({children}) {
+  const users = userRepository.getAll()
+  return (
+    <div class="grid gap-4">
+      { users.map((u) => <User user={user} />)}
+    </div>
+  )
+}
+```
+
+```tsx
+export default function ShareUser({children, user}) {
+  const canShare = navigator.canShare()
+  return (
+    <div>
+      <button
+        onClick={() => navigator.share({ url: user.url, title: user.name})}
+      >
+      Share
+      </button>
+    </div>
+  )
+}
+```
+
+```tsx
+"use client"
+export default function ShareUser({children, user}) {
+  const canShare = navigator.canShare()
+  return (
+    <div>
+      <button
+        onClick={() => navigator.share({ url: user.url, title: user.name})}
+      >
+      Share
+      </button>
+    </div>
+  )
+}
+```
+
+````
+
 ---
 
 # Does Vue also provide server components ?
@@ -374,6 +383,7 @@ const auth = useAuthStore()
 <img class="rounded-xl mx-auto" src="/assets/vsc.png" />
 
 ---
+
 
 # And what about Nuxt ?
 
@@ -489,6 +499,79 @@ layout: intro
 <v-click>
 <img src="/assets/mypain_islandrenderingissue.png" class="w-1/2 mx-auto" />
 </v-click>
+
+---
+
+::window
+
+<div class="max-h-[50vh] overflow-auto">
+
+```ts
+(_ctx: any, _cache: any) => {
+  if (!html.value || error.value) {
+    return [slots.fallback?.({ error: error.value }) ?? createVNode('div')]
+  }
+  return [
+    withMemo([key.value], () => {
+      return createVNode(Fragment, { key: key.value }, [h(createStaticVNode(html.value || '<div></div>', 1))])
+    }, _cache, 0),
+
+    // should away be triggered ONE tick after re-rendering the static node
+    withMemo([teleportKey.value], () => {
+      const teleports: Array<VNode> = []
+      // this is used to force trigger Teleport when vue makes the diff between old and new node
+      const isKeyOdd = teleportKey.value === 0 || !!(teleportKey.value && !(teleportKey.value % 2))
+
+      if (uid.value && html.value && (import.meta.server || props.lazy ? canTeleport : (mounted.value || instance.vnode?.el))) {
+        for (const slot in slots) {
+          if (availableSlots.value.has(slot)) {
+            teleports.push(createVNode(Teleport,
+              // use different selectors for even and odd teleportKey to force trigger the teleport
+              { to: import.meta.client ? `${isKeyOdd ? 'div' : ''}[data-island-uid="${uid.value}"][data-island-slot="${slot}"]` : `uid=${uid.value};slot=${slot}` },
+              { default: () => (payloads.slots?.[slot]?.props?.length ? payloads.slots[slot].props : [{}]).map((data: any) => slots[slot]?.(data)) }),
+            )
+          }
+        }
+        if (selectiveClient) {
+          if (import.meta.server) {
+            if (payloads.components) {
+              for (const [id, info] of Object.entries(payloads.components)) {
+                const { html, slots } = info
+                let replaced = html.replaceAll('data-island-uid', `data-island-uid="${uid.value}"`)
+                for (const slot in slots) {
+                  replaced = replaced.replaceAll(`data-island-slot="${slot}">`, full => full + slots[slot])
+                }
+                teleports.push(createVNode(Teleport, { to: `uid=${uid.value};client=${id}` }, {
+                  default: () => [createStaticVNode(replaced, 1)],
+                }))
+              }
+            }
+          } else if (canLoadClientComponent.value && payloads.components) {
+            for (const [id, info] of Object.entries(payloads.components)) {
+              const { props, slots } = info
+              const component = components!.get(id)!
+              // use different selectors for even and odd teleportKey to force trigger the teleport
+              const vnode = createVNode(Teleport, { to: `${isKeyOdd ? 'div' : ''}[data-island-uid='${uid.value}'][data-island-component="${id}"]` }, {
+                default: () => {
+                  return [h(component, props, Object.fromEntries(Object.entries(slots || {}).map(([k, v]) => ([k, () => createStaticVNode(`<div style="display: contents" data-island-uid data-island-slot="${k}">${v}</div>`, 1),
+                  ]))))]
+                },
+              })
+              teleports.push(vnode)
+            }
+          }
+        }
+      }
+
+      return h(Fragment, teleports)
+    }, _cache, 1),
+  ]
+}
+```
+
+</div>
+
+::
 
 ---
 
@@ -919,9 +1002,7 @@ interface NuxtIslandResponse {
 ---
 
 <div class="h-[50vh] overflow-auto">
-
-````md magic-move
-
+ 
 ```ts
 (_ctx: any, _cache: any) => {
   if (!html.value || error.value) {
@@ -984,31 +1065,23 @@ interface NuxtIslandResponse {
   ]
 }
 ```
+
+</div>
+
+---
+
 ```ts
 () => {
   return renderOnigiri(ast.value)
 }
 ```
 
-````
-
-</div>
 
 --- 
 
 # Current state
-
-<div >
-<v-switch v-click>
-<template #1>
-<img  id="building" src="/assets/building.png" />
-</template>
-<template #2>
-
-<img id="spaghetii" src="/assets/spaghettis.jpg" />
-</template>
-</v-switch>
-</div>
+ 
+<img  id="building" src="/assets/building.png" class="mx-auto" /> 
 
 ---
 
@@ -1016,7 +1089,7 @@ interface NuxtIslandResponse {
 
 <v-clicks>
 
-- Fully implement it for Nuxt 5
+- Prepare it for Nuxt 5
 - Compilation based AST render function
 - Create a playground similar to Vue SFC Playground
 
@@ -1026,7 +1099,7 @@ interface NuxtIslandResponse {
 layout: intro
 ---
 
-# Merci ! ❤️
+# Thank you ! ❤️
 
 
 <div>
