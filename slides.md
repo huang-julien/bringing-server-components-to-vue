@@ -179,8 +179,28 @@ layout: intro
 
 <two-cols gap-4>
 
+::window{filename="components/UserList.server.vue"}
+
+```html
+<script setup lang="ts">
+// Runs only server side, rendered statically
+const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
+</script>
+
+<template>
+  <ul>
+    <li v-for="u in users" :key="u.id">
+      {{ u.name }}
+      <FollowButton :user-id="u.id" />
+    </li>
+  </ul>
+</template>
+```
+::
+
 ::window{filename="components/FollowButton.vue"}
 
+````md magic-move
 ```html
 <script setup lang="ts">
 const props = defineProps<{ userId: string }>()
@@ -195,42 +215,19 @@ function toggle() { following.value = !following.value }
   </button>
 </template>
 ```
-::
-
-::window{filename="components/UserList.server.vue"}
-
-````md magic-move
-```html
-<script setup lang="ts">
-// Runs only server side, rendered statically
-const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
-</script>
-
-<template>
-  <ul>
-    <li v-for="u in users" :key="u.id">
-      {{ u.name }}
-      <FollowButton :user-id="u.id" />
-    </li>
-  </ul>
-</template>
-```
 
 ```html
 <script setup lang="ts">
-"use client";
-
-// Runs only server side, rendered statically
-const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
+const props = defineProps<{ userId: string }>()
+const following = ref(false)
+// interactivity expected from browser interaction
+function toggle() { following.value = !following.value }
 </script>
 
 <template>
-  <ul>
-    <li v-for="u in users" :key="u.id">
-      {{ u.name }}
-      <FollowButton :user-id="u.id" />
-    </li>
-  </ul>
+  <button @click="toggle">
+    {{ following ? 'Unfollow' : 'Follow' }}
+  </button>
 </template>
 ```
 ````
@@ -327,7 +324,7 @@ const auth = useAuthStore()
 
 - AST converted into React Trees client side
 - Components are server only by default
-- Declarative client components with `"use client"` magic string
+- Declarative server-client components with `"use client"` magic string
 
 ````md magic-move
 
