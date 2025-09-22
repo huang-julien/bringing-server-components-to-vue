@@ -78,80 +78,6 @@ layout: intro
 
 ---
 
-# Components in frontend frameworks
-
-<div class="grid gap-4 grid-cols-[_2fr_1fr]">
-
-<div>
-
-- Self contained
-- Reusable UI unit
-- Hold local state
-
-<two-cols class="gap-4">
-
-```tsx
-export default function Gallery() {
-  return (
-    <section>
-      <h1>Amazing scientists</h1>
-      <Profile />
-      <Profile />
-      <Profile />
-    </section>
-  );
-}
-```
-
-```html
-<script setup>
-import { ref } from 'vue'
-
-const msg = ref('Hello World!')
-</script>
-
-<template>
-  <h1>{{ msg }}</h1>
-  <input v-model="msg" />
-</template>
-
-<style>
-h1 { color: blanchedalmond; }
-</style>
-```
-
-</two-cols>
-
-</div>
-<div>
-
-
-<div class="flex gap-4 my-5">
-
-<logos-vue size="2rem" />
-
-<devicon-angular size="2rem" />
-
-<devicon-react size="2rem"  />
-
-<logos-svelte-icon size="2rem" />
-
-</div>
-
-<img src="/assets/frameworks-everywhere.jpg" />
-</div>
-
-</div>
-
-<!-- 
-
-A component in modern frontend frameworks is a self-contained, reusable piece of UI that encapsulates structure, appearance, behavior, and state.
-
--->
-
-
----
-
 # Meta-frameworks
 
 <div class="flex gap-4 my-5">
@@ -253,27 +179,8 @@ layout: intro
 
 <two-cols gap-4>
 
-::window{filename="components/FollowButton.vue"}
-
-```html
-<script setup lang="ts">
-const props = defineProps<{ userId: string }>()
-const following = ref(false)
-// interactivity expected from browser interaction
-function toggle() { following.value = !following.value }
-</script>
-
-<template>
-  <button @click="toggle">
-    {{ following ? 'Unfollow' : 'Follow' }}
-  </button>
-</template>
-```
-::
-
 ::window{filename="components/UserList.server.vue"}
 
-````md magic-move
 ```html
 <script setup lang="ts">
 // Runs only server side, rendered statically
@@ -289,20 +196,39 @@ const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
   </ul>
 </template>
 ```
+::
 
+::window{filename="components/FollowButton.vue"}
+
+````md magic-move
 ```html
 <script setup lang="ts">
-// Runs only server side, rendered statically
-const { data: users } = await useAsyncData('users', () => $fetch('/api/users'))
+const props = defineProps<{ userId: string }>()
+const following = ref(false)
+// interactivity expected from browser interaction
+function toggle() { following.value = !following.value }
 </script>
 
 <template>
-  <ul>
-    <li v-for="u in users" :key="u.id">
-      {{ u.name }}
-      <FollowButton v-load-client :user-id="u.id" />
-    </li>
-  </ul>
+  <button @click="toggle">
+    {{ following ? 'Unfollow' : 'Follow' }}
+  </button>
+</template>
+```
+
+```html
+<script setup lang="ts">
+"use client"
+const props = defineProps<{ userId: string }>()
+const following = ref(false)
+// interactivity expected from browser interaction
+function toggle() { following.value = !following.value }
+</script>
+
+<template>
+  <button @click="toggle">
+    {{ following ? 'Unfollow' : 'Follow' }}
+  </button>
 </template>
 ```
 ````
@@ -367,6 +293,32 @@ const auth = useAuthStore()
   |- client component
 ```
 
+````md magic-move{at:'2'}
+
+```bash
+- Request
+```
+
+```bash
+- Request
+- Import JS
+```
+
+```bash
+- Request
+- Import JS
+- Request
+```
+
+```bash
+- Request
+- Import JS
+- Request
+- Import JS
+```
+
+````
+
 ---
 
 # Does Vue also provide server components ?
@@ -375,15 +327,18 @@ const auth = useAuthStore()
 
 ---
 
+
 # And what about Nuxt ?
  
 <v-clicks>
+ 
 
 - THE meta-framework around VueJS
 - Powered by Nitro and UNJS
 - Allows server side rendering
 - Allows pre-rendering your app
 - VueJS application runs server side and client side
+ 
 
 </v-clicks> 
 <img v-drag="[618,74,275,413]" src="/assets/nuxtisland.png" />
@@ -495,6 +450,79 @@ layout: intro
 <v-click>
 <img src="/assets/mypain_islandrenderingissue.png" class="w-1/2 mx-auto" />
 </v-click>
+
+---
+
+::window
+
+<div class="max-h-[50vh] overflow-auto">
+
+```ts
+(_ctx: any, _cache: any) => {
+  if (!html.value || error.value) {
+    return [slots.fallback?.({ error: error.value }) ?? createVNode('div')]
+  }
+  return [
+    withMemo([key.value], () => {
+      return createVNode(Fragment, { key: key.value }, [h(createStaticVNode(html.value || '<div></div>', 1))])
+    }, _cache, 0),
+
+    // should away be triggered ONE tick after re-rendering the static node
+    withMemo([teleportKey.value], () => {
+      const teleports: Array<VNode> = []
+      // this is used to force trigger Teleport when vue makes the diff between old and new node
+      const isKeyOdd = teleportKey.value === 0 || !!(teleportKey.value && !(teleportKey.value % 2))
+
+      if (uid.value && html.value && (import.meta.server || props.lazy ? canTeleport : (mounted.value || instance.vnode?.el))) {
+        for (const slot in slots) {
+          if (availableSlots.value.has(slot)) {
+            teleports.push(createVNode(Teleport,
+              // use different selectors for even and odd teleportKey to force trigger the teleport
+              { to: import.meta.client ? `${isKeyOdd ? 'div' : ''}[data-island-uid="${uid.value}"][data-island-slot="${slot}"]` : `uid=${uid.value};slot=${slot}` },
+              { default: () => (payloads.slots?.[slot]?.props?.length ? payloads.slots[slot].props : [{}]).map((data: any) => slots[slot]?.(data)) }),
+            )
+          }
+        }
+        if (selectiveClient) {
+          if (import.meta.server) {
+            if (payloads.components) {
+              for (const [id, info] of Object.entries(payloads.components)) {
+                const { html, slots } = info
+                let replaced = html.replaceAll('data-island-uid', `data-island-uid="${uid.value}"`)
+                for (const slot in slots) {
+                  replaced = replaced.replaceAll(`data-island-slot="${slot}">`, full => full + slots[slot])
+                }
+                teleports.push(createVNode(Teleport, { to: `uid=${uid.value};client=${id}` }, {
+                  default: () => [createStaticVNode(replaced, 1)],
+                }))
+              }
+            }
+          } else if (canLoadClientComponent.value && payloads.components) {
+            for (const [id, info] of Object.entries(payloads.components)) {
+              const { props, slots } = info
+              const component = components!.get(id)!
+              // use different selectors for even and odd teleportKey to force trigger the teleport
+              const vnode = createVNode(Teleport, { to: `${isKeyOdd ? 'div' : ''}[data-island-uid='${uid.value}'][data-island-component="${id}"]` }, {
+                default: () => {
+                  return [h(component, props, Object.fromEntries(Object.entries(slots || {}).map(([k, v]) => ([k, () => createStaticVNode(`<div style="display: contents" data-island-uid data-island-slot="${k}">${v}</div>`, 1),
+                  ]))))]
+                },
+              })
+              teleports.push(vnode)
+            }
+          }
+        }
+      }
+
+      return h(Fragment, teleports)
+    }, _cache, 1),
+  ]
+}
+```
+
+</div>
+
+::
 
 ---
 
@@ -710,6 +738,137 @@ layout: intro
 </v-clicks>
 
 <img v-click v-drag="[283,195,448,284]" src="/assets/itaintmuch.png" />
+
+---
+
+<TwoCols gap-2 items-center>
+
+````md magic-move{maxHeight:'40vh'}
+
+```html
+<div class="hello-world">
+  Hello PragVue !
+</div>
+```
+```html
+<div>
+  <HelloText name="PragVue">
+      
+  </HelloText>
+</div>
+```
+```html
+<div>
+  <HelloText v-load-client name="PragVue">
+      
+  </HelloText>
+</div>
+```
+
+```html
+<div>
+  <HelloText v-load-client name="PragVue">
+      <div>
+        Even this works !
+      </div>
+  </HelloText>
+</div>
+```
+
+````
+
+<div id="second-code-block" class="overflow-auto max-h-[50vh]">
+
+````md magic-move{at:'2', }
+
+```ts
+const enum VServerComponentType {
+  Element, // 0
+  Component, // 1
+  Text, // 2
+  Fragment, // 3
+  Suspense, // 4
+}
+
+const ast = [
+  VServerComponentType.Element,
+  "div",
+  {
+    class: "hello-world"
+  },
+  [
+    [
+      VServerComponentType.Text,
+      "Hello PragVue !"
+    ]
+  ]
+]
+```
+
+```ts
+const enum VServerComponentType {
+  Element, // 0
+  Component, // 1
+  Text, // 2
+  Fragment, // 3
+  Suspense, // 4
+}
+
+const ast = [
+  VServerComponentType.Element,
+  "div",
+  null,
+  [
+    [
+      VServerComponentType.Component,
+      {
+        name: 'PragVue'
+      },
+      "/src/HelloText.vue",
+      "default",
+      {}
+    ]
+  ]
+]
+```
+
+```ts
+const enum VServerComponentType {
+  Element, // 0
+  Component, // 1
+  Text, // 2
+  Fragment, // 3
+  Suspense, // 4
+}
+
+const ast = [
+  VServerComponentType.Element,
+  "div",
+  null,
+  [
+    [
+      VServerComponentType.Component,
+      {
+        name: 'PragVue'
+      },
+      "/src/HelloText.vue",
+      "default",
+      {
+        default: [
+          [
+            VServerComponentType.Text,
+            "Even this works !"
+          ]
+        ]
+      }
+    ]
+  ]
+]
+```
+
+````
+</div>
+</TwoCols>
 
 ---
 
@@ -932,8 +1091,7 @@ interface NuxtIslandResponse {
 ---
 
 <div class="h-[50vh] overflow-auto">
-
-
+ 
 ```ts
 (_ctx: any, _cache: any) => {
   if (!html.value || error.value) {
@@ -1007,39 +1165,76 @@ interface NuxtIslandResponse {
 }
 ```
 
----
+
+--- 
 
 # Current state
-
-<div >
-<v-switch v-click>
-<template #1>
-<img  id="building" src="/assets/building.png" />
-</template>
-<template #2>
-
-<img id="spaghetii" src="/assets/spaghettis.jpg" />
-</template>
-</v-switch>
-</div>
-
----
-
-# Roadmap
-
-<v-clicks>
-
-- Fully implement it for Nuxt 5
-- Compilation based AST render function
-- Create a playground similar to Vue SFC Playground
-
-</v-clicks>
+ 
+<img  id="building" src="/assets/building.png" class="mx-auto" /> 
 
 ---
 layout: intro
 ---
 
-# Merci ! ❤️
+# Roadmap
+
+---
+layout: intro
+---
+
+<h1>
+
+Preparing for nuxt 
+<v-switch>
+<template #0>5</template>
+<template #1>6 ?</template>
+</v-switch>
+
+</h1>
+---
+layout: intro
+---
+
+# Make the plugin compatible with all bundlers with unplugin
+
+---
+layout: intro
+---
+
+# Build-time render function that returns AST
+
+<div class="text-left">
+
+```ts
+export default defineComponent({
+  setup() {
+    // ...
+    if(inject(onigiriSymbol)) {
+      return () => {/* ... */}
+    }
+    
+    return () => h(/* ... */)
+  },
+  renderOnigiri(ctx, slots) {
+    return [
+      VServerComponentType.Element,
+      "div",
+      null,
+      [
+        /* ... */
+      ]
+    ]
+  }
+})
+```
+
+</div>
+
+---
+layout: intro
+---
+
+# Thank you ! ❤️
 
 
 <div>
