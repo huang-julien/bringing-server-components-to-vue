@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="grid grid-cols-3 gap-2">
+    <div class="grid grid-cols-3 gap-4">
         <template v-for="(step, index) in steps">
-        <div  v-if="clicks >= index" class="flex flex-col items-center text-center p-2 border rounded-lg">
-            <span class="text-3xl mb">
+        <div v-show="clicks >= index" class="flex flex-col items-center text-center p-2 border rounded-lg">
+            <span class="text-xl">
                 <Icon :icon="step.icon" />
             </span>
             <p class="font-semibold text-xs">{{ step.title }}</p>
@@ -25,11 +25,11 @@ const steps = [
     },
     {
         icon: 'logos:vue',
-        title: 'Renders the component server side'
+        title: 'Renders the component'
     },
     {
         icon: 'dashicons:html',
-        title: 'Renders to AST'
+        title: 'Serialize to AST'
     },
     {
         icon: 'streamline-freehand:programming-language-browser-html',
@@ -37,7 +37,7 @@ const steps = [
     },
     {
         icon: 'logos:vue',
-        title: 'Renders the component from AST'
+        title: 'Renders  from AST'
     },
 ]
 

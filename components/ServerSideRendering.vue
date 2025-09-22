@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="grid grid-cols-3 gap-2">
+    <div class="grid grid-cols-3 gap-6">
         <template v-for="(step, index) in steps">
-        <div  v-if="clicks >= index" class="flex flex-col items-center text-center p-4 border rounded-lg">
-            <span class="text-4xl mb-2">
+        <div  v-show="clicks >= index" class="flex flex-col items-center text-center p-4 border rounded-lg">
+            <span class="text-3xl mb-2">
                 <Icon :icon="step.icon" />
             </span>
             <h3 class="font-semibold">{{ step.title }}</h3>

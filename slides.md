@@ -108,7 +108,7 @@ layout: intro
 ::
 
 ---
-clicks: 5
+clicks: 6
 ---
 
 # How your app are rendered with SSR meta frameworks
@@ -116,7 +116,7 @@ clicks: 5
 <ServerSideRendering />
 
 ---
-clicks: 4
+clicks: 5
 ---
 
 # Server components
