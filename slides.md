@@ -320,61 +320,6 @@ const auth = useAuthStore()
 
 ---
 
-# IRL server components with NextJS and React server components 
-
-- AST converted into React Trees client side
-- Components are server only by default
-- Declarative server-client components with `"use client"` magic string
-
-````md magic-move
-
-
-```tsx
-export default function UsersList({children}) {
-  const users = userRepository.getAll()
-  return (
-    <div class="grid gap-4">
-      { users.map((u) => <User user={user} />)}
-    </div>
-  )
-}
-```
-
-```tsx
-export default function ShareUser({children, user}) {
-  const canShare = navigator.canShare()
-  return (
-    <div>
-      <button
-        onClick={() => navigator.share({ url: user.url, title: user.name})}
-      >
-      Share
-      </button>
-    </div>
-  )
-}
-```
-
-```tsx
-"use client"
-export default function ShareUser({children, user}) {
-  const canShare = navigator.canShare()
-  return (
-    <div>
-      <button
-        onClick={() => navigator.share({ url: user.url, title: user.name})}
-      >
-      Share
-      </button>
-    </div>
-  )
-}
-```
-
-````
-
----
-
 # Does Vue also provide server components ?
 
 <img class="rounded-xl mx-auto" src="/assets/vsc.png" />
@@ -384,8 +329,15 @@ export default function ShareUser({children, user}) {
 
 # And what about Nuxt ?
 
+<v-clicks>
+
+- THE meta-framework around VueJS
+- Powered by Nitro and UNJS
 - Allows server side rendering
 - Allows pre-rendering your app
+- VueJS application runs server side and client side
+
+</v-clicks> 
 
 <img v-drag="[618,74,275,413]" src="/assets/nuxtisland.png" />
 
@@ -780,6 +732,137 @@ layout: intro
 
 ---
 
+<TwoCols gap-2 items-center>
+
+````md magic-move{maxHeight:'40vh'}
+
+```html
+<div class="hello-world">
+  Hello PragVue !
+</div>
+```
+```html
+<div>
+  <HelloText name="PragVue">
+      
+  </HelloText>
+</div>
+```
+```html
+<div>
+  <HelloText v-load-client name="PragVue">
+      
+  </HelloText>
+</div>
+```
+
+```html
+<div>
+  <HelloText v-load-client name="PragVue">
+      <div>
+        Even this works !
+      </div>
+  </HelloText>
+</div>
+```
+
+````
+
+<div id="second-code-block" class="overflow-auto max-h-[50vh]">
+
+````md magic-move{at:'2', }
+
+```ts
+const enum VServerComponentType {
+  Element, // 0
+  Component, // 1
+  Text, // 2
+  Fragment, // 3
+  Suspense, // 4
+}
+
+const ast = [
+  VServerComponentType.Element,
+  "div",
+  {
+    class: "hello-world"
+  },
+  [
+    [
+      VServerComponentType.Text,
+      "Hello PragVue !"
+    ]
+  ]
+]
+```
+
+```ts
+const enum VServerComponentType {
+  Element, // 0
+  Component, // 1
+  Text, // 2
+  Fragment, // 3
+  Suspense, // 4
+}
+
+const ast = [
+  VServerComponentType.Element,
+  "div",
+  null,
+  [
+    [
+      VServerComponentType.Component,
+      {
+        name: 'PragVue'
+      },
+      "/src/HelloText.vue",
+      "default",
+      {}
+    ]
+  ]
+]
+```
+
+```ts
+const enum VServerComponentType {
+  Element, // 0
+  Component, // 1
+  Text, // 2
+  Fragment, // 3
+  Suspense, // 4
+}
+
+const ast = [
+  VServerComponentType.Element,
+  "div",
+  null,
+  [
+    [
+      VServerComponentType.Component,
+      {
+        name: 'PragVue'
+      },
+      "/src/HelloText.vue",
+      "default",
+      {
+        default: [
+          [
+            VServerComponentType.Text,
+            "Even this works !"
+          ]
+        ]
+      }
+    ]
+  ]
+]
+```
+
+````
+</div>
+</TwoCols>
+
+---
+
 # Vite plugin to provide information about the components location
 
 ```ts
@@ -1081,16 +1164,62 @@ interface NuxtIslandResponse {
 <img  id="building" src="/assets/building.png" class="mx-auto" /> 
 
 ---
+layout: intro
+---
 
 # Roadmap
 
-<v-clicks>
+---
+layout: intro
+---
 
-- Prepare it for Nuxt 5
-- Compilation based AST render function
-- Create a playground similar to Vue SFC Playground
+<h1>
 
-</v-clicks>
+Preparing for nuxt 
+<v-switch>
+<template #0>5</template>
+<template #1>6 ?</template>
+</v-switch>
+
+</h1>
+---
+layout: intro
+---
+
+# Make the plugin compatible with all bundlers with unplugin
+
+---
+layout: intro
+---
+
+# Build-time render function that returns AST
+
+<div class="text-left">
+
+```ts
+export default defineComponent({
+  setup() {
+    // ...
+    if(inject(onigiriSymbol)) {
+      return () => {/* ... */}
+    }
+    
+    return () => h(/* ... */)
+  },
+  renderOnigiri(ctx, slots) {
+    return [
+      VServerComponentType.Element,
+      "div",
+      null,
+      [
+        /* ... */
+      ]
+    ]
+  }
+})
+```
+
+</div>
 
 ---
 layout: intro
