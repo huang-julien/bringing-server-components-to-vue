@@ -218,6 +218,7 @@ function toggle() { following.value = !following.value }
 
 ```html
 <script setup lang="ts">
+"use client"
 const props = defineProps<{ userId: string }>()
 const following = ref(false)
 // interactivity expected from browser interaction
@@ -328,17 +329,18 @@ const auth = useAuthStore()
 
 
 # And what about Nuxt ?
-
+ 
 <v-clicks>
+ 
 
 - THE meta-framework around VueJS
 - Powered by Nitro and UNJS
 - Allows server side rendering
 - Allows pre-rendering your app
 - VueJS application runs server side and client side
+ 
 
 </v-clicks> 
-
 <img v-drag="[618,74,275,413]" src="/assets/nuxtisland.png" />
 
 ---
@@ -716,6 +718,13 @@ layout: intro
 
 <img v-drag="[353,-1,276,276]" src="/assets/vue-onigiri.svg" />
 
+<img v-drag="[185,141,130,130,-19]" class="rounded-full  overflow-hidden" src="/assets/anthony.png" />
+<v-drag-arrow pos="325,244,65,30"/>
+
+<img v-drag="[683,122,102,102,14]" class="rounded-full overflow-hidden" src="/assets/lucie.png" />
+
+<v-drag-arrow pos="685,186,-100,-41"/>
+
 ---
 
 # What does it do ?
@@ -873,7 +882,7 @@ console.log(Counter.__chunk, Counter.__export)
 // log '/hash.js', 'default'
 ```
 
---- 
+---
 
 # Runtime utilities to serialize and deserialize vnodes
  
@@ -1237,4 +1246,3 @@ layout: intro
 <div>
 <logos-linkedin-icon /> julien-huang
 </div>
-
