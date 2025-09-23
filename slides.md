@@ -377,7 +377,7 @@ interface NuxtIslandResponse {
 # How to use NuxtIsland
 
 
-::window{filename="components/MyContent.server.vue | components/island/MyContent.server.vue"}
+::window{filename="components/MyContent.server.vue | components/island/MyContent.vue"}
 ```html
 <template>
     <div class="my-auto h-full">
